@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/locus-env.sh"
+
+spin() {
+  local pid="$1" msg="$2" i=0
+  local -a frames=( '|' '/' '-' '\' )
+  while kill -0 "$pid" 2>/dev/null; do
+    printf '\r%s %s' "$msg" "${frames[$((i++ % 4))]}" >&2
+    sleep 0.1
+  done
+  printf '\r\033[K' >&2
+}
+
+mkdir -p "$ROOT/workspace"
+
+IMAGE="$LOCUS_IMAGE"
+
+CURRENT_HASH="$(docker image inspect --format '{{ index .Config.Labels "org.locus.build-hash" }}' "$IMAGE" 2>/dev/null || true)"
+
+if [ "$CURRENT_HASH" != "$BUILD_HASH" ]; then
+  if [ -t 2 ]; then
+    "${LOCUS_COMPOSE[@]}" -p "$LOCUS_PROJECT" build --quiet &
+    build_pid=$!
+    spin "$build_pid" "locus: собираю образ"
+    wait "$build_pid"
+  else
+    "${LOCUS_COMPOSE[@]}" -p "$LOCUS_PROJECT" build --quiet
+  fi
+fi
+
+if [ -t 0 ] && [ -t 1 ]; then
+  printf 'locus: запускаю контейнер...\n' >&2
+  exec "${LOCUS_COMPOSE[@]}" -p "$LOCUS_PROJECT" run --rm sandbox "$@"
+else
+  exec "${LOCUS_COMPOSE[@]}" -p "$LOCUS_PROJECT" run --rm -T sandbox "$@"
+fi

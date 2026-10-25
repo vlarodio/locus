@@ -1,0 +1,38 @@
+name: "${LOCUS_PROJECT:?use ./locus}"
+
+services:
+  sandbox:
+    build:
+      context: .
+      args:
+        LOCUS_UID: "${LOCUS_UID:-1000}"
+        LOCUS_GID: "${LOCUS_GID:-1000}"
+        BUILD_HASH: "${BUILD_HASH:-dev}"
+    image: "${LOCUS_IMAGE:?use ./locus}"
+    init: true
+    stdin_open: true
+    tty: true
+    user: "${LOCUS_UID:-1000}:${LOCUS_GID:-1000}"
+    working_dir: /workspace
+    environment:
+      TERM: "${TERM:-xterm-256color}"
+      TZ: "${TZ:-UTC}"
+      LOCUS_DATA_VOLUME: "${LOCUS_DATA_VOLUME:?use ./locus}"
+    volumes:
+      - type: bind
+        source: ./workspace
+        target: /workspace
+      - type: volume
+        source: data
+        target: /home/locus
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,size=256m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  data:
+    name: "${LOCUS_DATA_VOLUME:?use ./locus}"

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/locus-env.sh"
+
+if [ "${1:-}" = "id" ]; then
+  printf 'LOCUS_ID=%s\n' "$LOCUS_ID"
+  printf 'LOCUS_PROJECT=%s\n' "$LOCUS_PROJECT"
+  printf 'LOCUS_IMAGE=%s\n' "$LOCUS_IMAGE"
+  printf 'LOCUS_DATA_VOLUME=%s\n' "$LOCUS_DATA_VOLUME"
+  exit 0
+fi
+
+if [ "$#" -eq 0 ]; then
+  set -- ps
+fi
+
+exec "${LOCUS_COMPOSE[@]}" -p "$LOCUS_PROJECT" "$@"
