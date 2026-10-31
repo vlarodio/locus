@@ -11,8 +11,8 @@ export LOCUS_DATA_VOLUME="${LOCUS_DATA_VOLUME:-locus-data}"
 
 for dir in "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME" "$XDG_CACHE_HOME" "$BUN_TMPDIR"; do
   if ! mkdir -p "$dir" 2>/dev/null; then
-    echo "locus: нет прав на запись в $dir (UID $(id -u))." >&2
-    echo "locus: удали том командой: docker volume rm $LOCUS_DATA_VOLUME" >&2
+    echo "locus: no write access to $dir (UID $(id -u))." >&2
+    echo "locus: remove the volume with: docker volume rm $LOCUS_DATA_VOLUME" >&2
     exit 1
   fi
 done
@@ -24,8 +24,8 @@ if [ -r /etc/locus/opencode.json ]; then
 fi
 
 if ! touch "$HOME/.locus-write-test" 2>/dev/null; then
-  echo "locus: нет прав на запись в $HOME (UID $(id -u))." >&2
-  echo "locus: удали том командой: docker volume rm $LOCUS_DATA_VOLUME" >&2
+  echo "locus: no write access to $HOME (UID $(id -u))." >&2
+  echo "locus: remove the volume with: docker volume rm $LOCUS_DATA_VOLUME" >&2
   exit 1
 fi
 rm -f "$HOME/.locus-write-test"

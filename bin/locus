@@ -23,7 +23,7 @@ if [ "$CURRENT_HASH" != "$BUILD_HASH" ]; then
   if [ -t 2 ]; then
     "${LOCUS_COMPOSE[@]}" -p "$LOCUS_PROJECT" build --quiet &
     build_pid=$!
-    spin "$build_pid" "locus: собираю образ"
+    spin "$build_pid" "locus: building image"
     wait "$build_pid"
   else
     "${LOCUS_COMPOSE[@]}" -p "$LOCUS_PROJECT" build --quiet
@@ -31,7 +31,7 @@ if [ "$CURRENT_HASH" != "$BUILD_HASH" ]; then
 fi
 
 if [ -t 0 ] && [ -t 1 ]; then
-  printf 'locus: запускаю контейнер...\n' >&2
+  printf 'locus: starting container...\n' >&2
   exec "${LOCUS_COMPOSE[@]}" -p "$LOCUS_PROJECT" run --rm sandbox "$@"
 else
   exec "${LOCUS_COMPOSE[@]}" -p "$LOCUS_PROJECT" run --rm -T sandbox "$@"

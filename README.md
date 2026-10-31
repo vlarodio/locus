@@ -1,15 +1,17 @@
 # locus
 
-Докер-песочница.
+[English](README.md) | [Русский](README.ru.md)
 
-## Требования
+Docker sandbox.
+
+## Requirements
 
 - Linux;
-- Docker с Compose (`docker compose` или `docker-compose`);
+- Docker with Compose (`docker compose` or `docker-compose`);
 - `bash`, `sha256sum`;
-- `make` — опционально.
+- `make` — optional.
 
-## Быстрый старт
+## Quick start
 
 ```bash
 git clone <repo-url> locus
@@ -18,41 +20,41 @@ git clone <project-url> workspace
 make run
 ```
 
-## Имена и несколько клонов
+## Names and multiple clones
 
-`LOCUS_ID` — 12 символов sha256 от абсолютного пути песочницы. От него зависят:
+`LOCUS_ID` is 12 characters of sha256 of the sandbox's absolute path. These depend on it:
 
-- проект: `locus-<id>`;
-- образ: `locus-<id>:uid-<uid>`;
-- том: `locus-data-<id>`.
+- project: `locus-<id>`;
+- image: `locus-<id>:uid-<uid>`;
+- volume: `locus-data-<id>`.
 
-Разные клоны песочницы имеют разные имена и не конфликтуют. У каждого клона свой том, авторизация и сессии в каждом клоне отдельные.
+Different sandbox clones get different names and do not conflict. Each clone has its own volume, and authorization and sessions are separate in each clone.
 
-## Как устроено
+## How it works
 
-- `workspace/` — единственный каталог хоста, доступный контейнеру. Внутри он виден как `/workspace`. Если каталога нет, скрипт создаёт его при запуске.
-- `/home/locus` — отдельный Docker-том. Внутри авторизация, сессии, кэш и история shell.
-- Корневая файловая система контейнера только для чтения. Запись разрешена в `workspace`, `/tmp` и том `/home/locus`.
-- Контейнер работает от UID/GID текущего пользователя, не от root.
-- Образ пересобирается при изменении `Dockerfile`, `entrypoint.sh`, `tmux.conf`, `bashrc` или UID/GID.
+- `workspace/` is the only host directory available to the container. Inside, it is visible as `/workspace`. If the directory does not exist, the script creates it at startup.
+- `/home/locus` is a separate Docker volume. It contains authorization, sessions, cache, and shell history.
+- The container's root filesystem is read-only. Writing is allowed to `workspace`, `/tmp`, and the `/home/locus` volume.
+- The container runs as the current user's UID/GID, not as root.
+- The image is rebuilt when `Dockerfile`, `entrypoint.sh`, `tmux.conf`, `bashrc`, or UID/GID change.
 
-## Изоляция и ограничения
+## Isolation and limitations
 
-Что не монтируется в контейнер:
+What is not mounted into the container:
 
 - `$HOME`, `/`, `.ssh`, `.config`;
-- другие проекты;
+- other projects;
 - `docker.sock`.
 
-Дополнительно: `cap_drop: ALL`, `no-new-privileges`, read-only rootfs, отдельное PID-пространство и `tmpfs` для `/tmp`.
+Additionally: `cap_drop: ALL`, `no-new-privileges`, read-only rootfs, a separate PID namespace, and `tmpfs` for `/tmp`.
 
-### Секреты и `.env`
+### Secrets and `.env`
 
-`opencode.json` (`/etc/locus/opencode.json`) через `OPENCODE_CONFIG_CONTENT` требует подтверждения (`ask`) для `read`/`edit`/`bash` с `.env*`, `.envrc`, `secrets.*`, `credentials.*`, `*.pem`, `*.key`, `*id_rsa*`, `*id_ed25519*`, `.npmrc`, `.netrc`, `.git-credentials`. Шаблоны `.env.example` и подобные разрешены, `grep` не ограничен. Глобальный конфиг в томе перезаписывается при старте.
+`opencode.json` (`/etc/locus/opencode.json`) uses `OPENCODE_CONFIG_CONTENT` to require approval (`ask`) for `read`/`edit`/`bash` with `.env*`, `.envrc`, `secrets.*`, `credentials.*`, `*.pem`, `*.key`, `*id_rsa*`, `*id_ed25519*`, `.npmrc`, `.netrc`, `.git-credentials`. Templates such as `.env.example` and similar are allowed, and `grep` is not restricted. The global config in the volume is overwritten at startup.
 
-`--auto` и «always» одобряют `ask`, `bash`/`grep` обходятся. Надёжно скрыть секреты можно только не монтируя их в контейнер.
+`--auto` and "always" approve `ask`, and `bash`/`grep` can be bypassed. The only reliable way to hide secrets is to not mount them into the container.
 
-Ограничения:
+Limitations:
 
-- **Сеть не ограничена.** Она нужна для API модели, но allowlist/egress-фильтра нет.
-- **Docker делит ядро с хостом.** Агент видит ресурсы Docker-хоста через `/proc/meminfo`, `/proc/cpuinfo` и `/sys`, а также может определить, что сам Docker-хост запущен в виртуальной машине.
+- **The network is not restricted.** It is needed for the model API, but there is no allowlist/egress filter.
+- **Docker shares the kernel with the host.** The agent can see Docker host resources via `/proc/meminfo`, `/proc/cpuinfo`, and `/sys`, and can also determine that the Docker host itself runs in a virtual machine.

@@ -10,14 +10,14 @@ RUN := $(ROOT)/locus
 
 help:
 	@printf '%s\n' \
-		'make run                  запустить песочницу' \
-		'make ps                   показать контейнеры песочницы' \
-		'make logs                 логи' \
-		'make down                 остановить и удалить контейнер, том сохранить' \
-		'make reset                удалить контейнер и том (авторизация/сессии)' \
-		'make id                   показать имена проекта, образа и тома' \
-		'make config               показать итоговый compose-конфиг' \
-		'make compose ARGS="..."   передать команду в docker compose'
+		'make run                  start the sandbox' \
+		'make ps                   show sandbox containers' \
+		'make logs                 logs' \
+		'make down                 stop and remove the container, keep the volume' \
+		'make reset                remove the container and volume (auth/sessions)' \
+		'make id                   show project, image, and volume names' \
+		'make config               show the resulting compose config' \
+		'make compose ARGS="..."   pass a command to docker compose'
 
 run:
 	"$(RUN)"
@@ -32,10 +32,10 @@ down:
 	"$(COMPOSE)" down --remove-orphans
 
 reset:
-	@read -r -p 'Удалить контейнер и том с авторизацией/сессиями? [y/N] ' answer; \
+	@read -r -p 'Remove the container and the volume with auth/sessions? [y/N] ' answer; \
 	case "$$answer" in \
 		[yY]|[yY][eE][sS]) ;; \
-		*) echo 'Отменено.'; exit 1 ;; \
+		*) echo 'Cancelled.'; exit 1 ;; \
 	esac; \
 	"$(COMPOSE)" down --remove-orphans -v
 
@@ -46,5 +46,5 @@ config:
 	"$(COMPOSE)" config
 
 compose:
-	@test -n "$(ARGS)" || { echo 'Укажи ARGS, например: make compose ARGS="ps"'; exit 1; }
+	@test -n "$(ARGS)" || { echo 'Specify ARGS, e.g.: make compose ARGS="ps"'; exit 1; }
 	"$(COMPOSE)" $(ARGS)

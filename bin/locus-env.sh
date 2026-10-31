@@ -32,7 +32,7 @@ fi
 export TZ="${TZ:-UTC}"
 
 if ! command -v docker >/dev/null 2>&1; then
-  echo "locus: docker не найден" >&2
+  echo "locus: docker not found" >&2
   exit 1
 fi
 
@@ -41,6 +41,6 @@ if docker compose version >/dev/null 2>&1; then
 elif command -v docker-compose >/dev/null 2>&1; then
   LOCUS_COMPOSE=(docker-compose)
 else
-  echo "locus: docker compose не найден" >&2
+  echo "locus: docker compose not found" >&2
   exit 1
 fi
