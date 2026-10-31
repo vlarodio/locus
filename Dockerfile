@@ -21,10 +21,13 @@ RUN set -eux; \
     groupadd --gid "${LOCUS_GID}" locus; \
     useradd --create-home --uid "${LOCUS_UID}" --gid "${LOCUS_GID}" --shell /bin/bash locus; \
     mkdir -p /home/locus/.config/opencode /home/locus/.local/share /home/locus/.local/state /home/locus/.cache; \
-    printf '%s\n' '{"autoupdate":false}' > /home/locus/.config/opencode/opencode.json; \
     chown -R locus:locus /home/locus; \
-    chmod 0777 /home/locus /home/locus/.config /home/locus/.config/opencode /home/locus/.local /home/locus/.local/share /home/locus/.local/state /home/locus/.cache; \
-    chmod 0644 /home/locus/.config/opencode/opencode.json
+    chmod 0777 /home/locus /home/locus/.config /home/locus/.config/opencode /home/locus/.local /home/locus/.local/share /home/locus/.local/state /home/locus/.cache
+
+COPY opencode.json /etc/locus/opencode.json
+RUN cp /etc/locus/opencode.json /home/locus/.config/opencode/opencode.json \
+ && chown locus:locus /home/locus/.config/opencode/opencode.json \
+ && chmod 0644 /home/locus/.config/opencode/opencode.json
 
 RUN git config --system --add safe.directory /workspace
 

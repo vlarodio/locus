@@ -1,0 +1,57 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "autoupdate": false,
+  "permission": {
+    "read": {
+      "*": "allow",
+      "*.env": "ask",
+      "*.env.*": "ask",
+      "*.envrc": "ask",
+      "*secrets.*": "ask",
+      "*credentials.*": "ask",
+      "*.pem": "ask",
+      "*.key": "ask",
+      "*id_rsa*": "ask",
+      "*id_ed25519*": "ask",
+      "*.npmrc": "ask",
+      "*.netrc": "ask",
+      "*.git-credentials": "ask",
+      "*.env.example": "allow",
+      "*.env.sample": "allow",
+      "*.env.template": "allow",
+      "*.env.dist": "allow"
+    },
+    "edit": {
+      "*": "allow",
+      "*.env": "ask",
+      "*.env.*": "ask",
+      "*.envrc": "ask",
+      "*secrets.*": "ask",
+      "*credentials.*": "ask",
+      "*.pem": "ask",
+      "*.key": "ask",
+      "*id_rsa*": "ask",
+      "*id_ed25519*": "ask",
+      "*.npmrc": "ask",
+      "*.netrc": "ask",
+      "*.git-credentials": "ask",
+      "*.env.example": "allow",
+      "*.env.sample": "allow",
+      "*.env.template": "allow",
+      "*.env.dist": "allow"
+    },
+    "bash": {
+      "*": "allow",
+      "*.env*": "ask",
+      "*secrets.*": "ask",
+      "*credentials.*": "ask",
+      "*.pem*": "ask",
+      "*.key*": "ask",
+      "*id_rsa*": "ask",
+      "*id_ed25519*": "ask",
+      "*.npmrc*": "ask",
+      "*.netrc*": "ask",
+      "*.git-credentials*": "ask"
+    }
+  }
+}

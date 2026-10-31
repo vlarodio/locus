@@ -14,7 +14,7 @@ export LOCUS_UID LOCUS_GID LOCUS_ID LOCUS_PROJECT LOCUS_IMAGE LOCUS_DATA_VOLUME
 
 BUILD_HASH="$(
   {
-    sha256sum Dockerfile entrypoint.sh tmux.conf bashrc
+    sha256sum Dockerfile entrypoint.sh tmux.conf bashrc opencode.json
     printf '%s\n' "${LOCUS_UID}:${LOCUS_GID}"
   } | sha256sum | cut -d' ' -f1
 )"

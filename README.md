@@ -46,6 +46,12 @@ make run
 
 Дополнительно: `cap_drop: ALL`, `no-new-privileges`, read-only rootfs, отдельное PID-пространство и `tmpfs` для `/tmp`.
 
+### Секреты и `.env`
+
+`opencode.json` (`/etc/locus/opencode.json`) через `OPENCODE_CONFIG_CONTENT` требует подтверждения (`ask`) для `read`/`edit`/`bash` с `.env*`, `.envrc`, `secrets.*`, `credentials.*`, `*.pem`, `*.key`, `*id_rsa*`, `*id_ed25519*`, `.npmrc`, `.netrc`, `.git-credentials`. Шаблоны `.env.example` и подобные разрешены, `grep` не ограничен. Глобальный конфиг в томе перезаписывается при старте.
+
+`--auto` и «always» одобряют `ask`, `bash`/`grep` обходятся. Надёжно скрыть секреты можно только не монтируя их в контейнер.
+
 Ограничения:
 
 - **Сеть не ограничена.** Она нужна для API модели, но allowlist/egress-фильтра нет.

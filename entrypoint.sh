@@ -17,6 +17,12 @@ for dir in "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME" "$XDG_CACHE_HOM
   fi
 done
 
+if [ -r /etc/locus/opencode.json ]; then
+  mkdir -p "$XDG_CONFIG_HOME/opencode"
+  cp -f /etc/locus/opencode.json "$XDG_CONFIG_HOME/opencode/opencode.json"
+  export OPENCODE_CONFIG_CONTENT="$(cat /etc/locus/opencode.json)"
+fi
+
 if ! touch "$HOME/.locus-write-test" 2>/dev/null; then
   echo "locus: нет прав на запись в $HOME (UID $(id -u))." >&2
   echo "locus: удали том командой: docker volume rm $LOCUS_DATA_VOLUME" >&2
