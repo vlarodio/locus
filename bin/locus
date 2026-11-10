@@ -15,6 +15,31 @@ spin() {
 
 mkdir -p "$ROOT/workspace"
 
+MOUNT_ARGS=()
+if [ -f "$LOCUS_MOUNTS_FILE" ]; then
+  while IFS= read -r path || [ -n "${path:-}" ]; do
+    [ -n "$path" ] || continue
+    case "$path" in
+      /*) ;;
+      *) printf 'locus: mount path must be absolute: %s\n' "$path" >&2; exit 1 ;;
+    esac
+    case "$path" in
+      *:*) printf 'locus: mount path contains ":" and cannot be used: %s\n' "$path" >&2; exit 1 ;;
+    esac
+    if locus_protected_path "$path"; then
+      printf 'locus: refusing to mount protected path: %s\n' "$path" >&2
+      printf 'locus: remove with: make umount DIR=%q\n' "$path" >&2
+      exit 1
+    fi
+    if [ ! -d "$path" ]; then
+      printf 'locus: mount source is not a directory: %s\n' "$path" >&2
+      printf 'locus: remove with: make umount DIR=%q\n' "$path" >&2
+      exit 1
+    fi
+    MOUNT_ARGS+=(--volume "$path:$path")
+  done < "$LOCUS_MOUNTS_FILE"
+fi
+
 IMAGE="$LOCUS_IMAGE"
 
 CURRENT_HASH="$(docker image inspect --format '{{ index .Config.Labels "org.locus.build-hash" }}' "$IMAGE" 2>/dev/null || true)"
@@ -32,7 +57,7 @@ fi
 
 if [ -t 0 ] && [ -t 1 ]; then
   printf 'locus: starting container...\n' >&2
-  exec "${LOCUS_COMPOSE[@]}" -p "$LOCUS_PROJECT" run --rm sandbox "$@"
+  exec "${LOCUS_COMPOSE[@]}" -p "$LOCUS_PROJECT" run --rm "${MOUNT_ARGS[@]}" sandbox "$@"
 else
-  exec "${LOCUS_COMPOSE[@]}" -p "$LOCUS_PROJECT" run --rm -T sandbox "$@"
+  exec "${LOCUS_COMPOSE[@]}" -p "$LOCUS_PROJECT" run --rm -T "${MOUNT_ARGS[@]}" sandbox "$@"
 fi

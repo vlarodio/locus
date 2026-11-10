@@ -6,11 +6,14 @@ ROOT := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 COMPOSE := $(ROOT)/bin/locus-compose
 RUN := $(ROOT)/locus
 
-.PHONY: help run ps logs down reset id config compose
+.PHONY: help run mount umount mounts ps logs down reset id config compose
 
 help:
 	@printf '%s\n' \
 		'make run                  start the sandbox' \
+		'make mount DIR=/path      mount an extra host directory and restart' \
+		'make umount DIR=/path     remove an extra mount and restart' \
+		'make mounts               list extra mounts' \
 		'make ps                   show sandbox containers' \
 		'make logs                 logs' \
 		'make down                 stop and remove the container, keep the volume' \
@@ -21,6 +24,17 @@ help:
 
 run:
 	"$(RUN)"
+
+mount:
+	@test -n "$(DIR)" || { echo 'Specify DIR, e.g.: make mount DIR=/path/to/project'; exit 1; }
+	"$(ROOT)/bin/locus-mount" add "$(DIR)"
+
+umount:
+	@test -n "$(DIR)" || { echo 'Specify DIR, e.g.: make umount DIR=/path/to/project'; exit 1; }
+	"$(ROOT)/bin/locus-mount" remove "$(DIR)"
+
+mounts:
+	"$(ROOT)/bin/locus-mount" list
 
 ps:
 	"$(COMPOSE)" ps

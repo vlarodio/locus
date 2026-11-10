@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/locus-env.sh"
+
+die() {
+  printf 'locus: %s\n' "$*" >&2
+  exit 1
+}
+
+usage() {
+  printf '%s\n' \
+    'usage: locus-mount add DIR' \
+    '       locus-mount remove DIR' \
+    '       locus-mount list' >&2
+  exit 1
+}
+
+normalize_path() {
+  local dir="$1"
+  case "$dir" in
+    "~") dir="$HOME" ;;
+    "~/"*) dir="$HOME/${dir#\~/}" ;;
+  esac
+  case "$dir" in
+    /*) ;;
+    *) dir="$LOCUS_CALLER_PWD/$dir" ;;
+  esac
+  realpath -m -- "$dir"
+}
+
+restart() {
+  local ids
+  ids="$(docker ps -q \
+    --filter "label=com.docker.compose.project=$LOCUS_PROJECT" \
+    --filter "label=com.docker.compose.service=sandbox" || true)"
+  if [ -n "$ids" ]; then
+    printf 'locus: stopping sandbox...\n' >&2
+    # shellcheck disable=SC2086
+    docker stop $ids >/dev/null
+  fi
+  exec "$ROOT/bin/locus"
+}
+
+cmd="${1:-}"
+[ "$#" -gt 0 ] && shift
+
+case "$cmd" in
+  add)
+    [ "$#" -ge 1 ] || usage
+    src="$(normalize_path "$1")"
+    if locus_protected_path "$src"; then
+      die "refusing to mount protected path: $src"
+    fi
+    [ -d "$src" ] || die "not a directory: $1"
+    case "$src" in
+      *:*) die "paths containing ':' are not supported" ;;
+      *$'\t'*|*$'\n'*) die "paths containing tabs or newlines are not supported" ;;
+    esac
+    case "$HOME/" in
+      "$src"/*) printf 'locus: warning: %s contains %s; secrets may be exposed\n' "$src" "$HOME" >&2 ;;
+    esac
+    [ -w "$src" ] || printf 'locus: warning: %s is not writable by UID %s\n' "$src" "$LOCUS_UID" >&2
+
+    mkdir -p "$(dirname -- "$LOCUS_MOUNTS_FILE")"
+    touch "$LOCUS_MOUNTS_FILE"
+    if grep -Fxq -- "$src" "$LOCUS_MOUNTS_FILE"; then
+      printf 'locus: %s is already mounted\n' "$src" >&2
+    else
+      printf '%s\n' "$src" >> "$LOCUS_MOUNTS_FILE"
+      printf 'locus: mounted %s\n' "$src" >&2
+    fi
+    restart
+    ;;
+
+  remove)
+    [ "$#" -ge 1 ] || usage
+    target="$(normalize_path "$1")"
+    [ -f "$LOCUS_MOUNTS_FILE" ] || die "not mounted: $1"
+    grep -Fxq -- "$target" "$LOCUS_MOUNTS_FILE" || die "not mounted: $1"
+
+    tmp="$(mktemp "$LOCUS_MOUNTS_FILE.XXXXXX")"
+    grep -Fxv -- "$target" "$LOCUS_MOUNTS_FILE" > "$tmp" || true
+    mv "$tmp" "$LOCUS_MOUNTS_FILE"
+    printf 'locus: unmounted %s\n' "$target" >&2
+    restart
+    ;;
+
+  list)
+    if [ ! -s "$LOCUS_MOUNTS_FILE" ]; then
+      printf 'no extra mounts\n'
+      exit 0
+    fi
+    printf 'absolute paths mounted at the same path inside the sandbox:\n'
+    while IFS= read -r path || [ -n "${path:-}" ]; do
+      [ -n "$path" ] && printf '%s\n' "$path"
+    done < "$LOCUS_MOUNTS_FILE"
+    ;;
+
+  *)
+    usage
+    ;;
+esac

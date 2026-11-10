@@ -38,6 +38,16 @@ Different sandbox clones get different names and do not conflict. Each clone has
 - The container runs as the current user's UID/GID, not as root.
 - The image is rebuilt when `Dockerfile`, `entrypoint.sh`, `tmux.conf`, `bashrc`, or UID/GID change.
 
+## Additional directories
+
+```bash
+make mount DIR=~/src/foo
+make mounts
+make umount DIR=~/src/foo
+```
+
+The directory is mounted at the same absolute path inside the sandbox. `make mount`/`make umount` restart the sandbox: tmux ends, while auth and sessions in the volume persist. The list is stored in `.locus/mounts`; system paths such as `/etc`, `/usr`, and `/workspace` are rejected.
+
 ## Isolation and limitations
 
 What is not mounted into the container:
