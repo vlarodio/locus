@@ -13,8 +13,6 @@ spin() {
   printf '\r\033[K' >&2
 }
 
-mkdir -p "$ROOT/workspace"
-
 MOUNT_ARGS=()
 if [ -f "$LOCUS_MOUNTS_FILE" ]; then
   while IFS= read -r path || [ -n "${path:-}" ]; do
@@ -36,7 +34,7 @@ if [ -f "$LOCUS_MOUNTS_FILE" ]; then
       printf 'locus: remove with: make umount DIR=%q\n' "$path" >&2
       exit 1
     fi
-    MOUNT_ARGS+=(--volume "$path:$path")
+    MOUNT_ARGS+=(--volume "$path:/mounts/$(basename -- "$path")")
   done < "$LOCUS_MOUNTS_FILE"
 fi
 

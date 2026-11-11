@@ -13,15 +13,12 @@ services:
     stdin_open: true
     tty: true
     user: "${LOCUS_UID:-1000}:${LOCUS_GID:-1000}"
-    working_dir: /workspace
+    working_dir: /mounts
     environment:
       TERM: "${TERM:-xterm-256color}"
       TZ: "${TZ:-UTC}"
       LOCUS_DATA_VOLUME: "${LOCUS_DATA_VOLUME:?use ./locus}"
     volumes:
-      - type: bind
-        source: ./workspace
-        target: /workspace
       - type: volume
         source: data
         target: /home/locus

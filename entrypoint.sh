@@ -30,7 +30,7 @@ if ! touch "$HOME/.locus-write-test" 2>/dev/null; then
 fi
 rm -f "$HOME/.locus-write-test"
 
-cd /workspace
+cd /mounts
 
 if [ "$#" -eq 0 ]; then
   if [ -t 0 ] && [ -t 1 ]; then

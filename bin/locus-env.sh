@@ -15,7 +15,7 @@ LOCUS_MOUNTS_FILE="$ROOT/.locus/mounts"
 export LOCUS_UID LOCUS_GID LOCUS_ID LOCUS_PROJECT LOCUS_IMAGE LOCUS_DATA_VOLUME
 export LOCUS_CALLER_PWD LOCUS_MOUNTS_FILE
 
-LOCUS_PROTECTED_PATHS=(/bin /boot /dev /etc /home/locus /lib /lib32 /lib64 /proc /root /run /sbin /sys /tmp /usr /var /workspace)
+LOCUS_PROTECTED_PATHS=(/bin /boot /dev /etc /home/locus /lib /lib32 /lib64 /proc /root /run /sbin /sys /tmp /usr /var)
 
 locus_protected_path() {
   local target="$1" protected

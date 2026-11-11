@@ -29,7 +29,8 @@ RUN cp /etc/locus/opencode.json /home/locus/.config/opencode/opencode.json \
  && chown locus:locus /home/locus/.config/opencode/opencode.json \
  && chmod 0644 /home/locus/.config/opencode/opencode.json
 
-RUN git config --system --add safe.directory /workspace
+RUN mkdir -p /mounts \
+ && git config --system --add safe.directory '*'
 
 COPY entrypoint.sh /usr/local/bin/locus-entrypoint
 COPY bashrc /etc/locus/bashrc

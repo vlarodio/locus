@@ -16,7 +16,6 @@ Docker sandbox.
 ```bash
 git clone <repo-url> locus
 cd locus
-git clone <project-url> workspace
 make run
 ```
 
@@ -32,21 +31,21 @@ Different sandbox clones get different names and do not conflict. Each clone has
 
 ## How it works
 
-- `workspace/` is the only host directory available to the container. Inside, it is visible as `/workspace`. If the directory does not exist, the script creates it at startup.
+- `/mounts` is the directory where host directories appear. Each `make mount DIR=...` is mounted at `/mounts/<directory name>`. `make run` starts tmux in `/mounts`.
 - `/home/locus` is a separate Docker volume. It contains authorization, sessions, cache, and shell history.
-- The container's root filesystem is read-only. Writing is allowed to `workspace`, `/tmp`, and the `/home/locus` volume.
+- The container's root filesystem is read-only. Writing is allowed to the mounted directories, `/tmp`, and the `/home/locus` volume.
 - The container runs as the current user's UID/GID, not as root.
 - The image is rebuilt when `Dockerfile`, `entrypoint.sh`, `tmux.conf`, `bashrc`, or UID/GID change.
 
 ## Additional directories
 
 ```bash
-make mount DIR=~/src/foo
+make mount DIR=~/src/foo   # appears as /mounts/foo
 make mounts
 make umount DIR=~/src/foo
 ```
 
-The directory is mounted at the same absolute path inside the sandbox. `make mount`/`make umount` restart the sandbox: tmux ends, while auth and sessions in the volume persist. The list is stored in `.locus/mounts`; system paths such as `/etc`, `/usr`, and `/workspace` are rejected.
+The directory is mounted inside the sandbox as `/mounts/<directory name>`. `make mount`/`make umount` restart the sandbox: tmux ends, while auth and sessions in the volume persist. The list is stored in `.locus/mounts`; system paths such as `/etc` and `/usr` are rejected.
 
 ## Isolation and limitations
 
