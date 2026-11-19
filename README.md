@@ -47,6 +47,19 @@ make umount DIR=~/src/foo
 
 The directory is mounted inside the sandbox as `/mounts/<directory name>`. `make mount`/`make umount` restart the sandbox: tmux ends, while auth and sessions in the volume persist. The list is stored in `.locus/mounts`; system paths such as `/etc` and `/usr` are rejected.
 
+## Documents
+
+PDF and DOCX tools: `poppler-utils` (`pdftotext`, `pdfinfo`, `pdftoppm`), `qpdf`, `pandoc`, and `tesseract-ocr` (`rus+eng`).
+
+```bash
+pdftotext -layout file.pdf -              # PDF -> text
+pandoc notes.md -o notes.docx             # Markdown -> DOCX
+pdftoppm -png -r 300 scan.pdf /tmp/page   # scan -> images for OCR
+tesseract /tmp/page-1.png stdout -l rus+eng
+```
+
+`pandoc` writes DOCX, not PDF (no LaTeX).
+
 ## Isolation and limitations
 
 What is not mounted into the container:

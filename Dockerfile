@@ -6,7 +6,10 @@ ENV DEBIAN_FRONTEND=noninteractive \
     LANG=C.UTF-8
 
 RUN apt-get update \
- && apt-get install -y --no-install-recommends ca-certificates curl git ripgrep tmux \
+ && apt-get install -y --no-install-recommends \
+      ca-certificates curl git ripgrep tmux \
+      poppler-utils qpdf pandoc \
+      tesseract-ocr tesseract-ocr-eng tesseract-ocr-rus \
  && rm -rf /var/lib/apt/lists/*
 
 RUN npm install --global "opencode-ai@${OPENCODE_VERSION}" \

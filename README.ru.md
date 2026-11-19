@@ -47,6 +47,19 @@ make umount DIR=~/src/foo
 
 Каталог монтируется внутрь песочницы как `/mounts/<имя каталога>`. `make mount`/`make umount` перезапускают песочницу: tmux завершается, auth и сессии в томе сохраняются. Список хранится в `.locus/mounts`; системные пути вроде `/etc` и `/usr` запрещены.
 
+## Документы
+
+Инструменты для PDF и DOCX: `poppler-utils` (`pdftotext`, `pdfinfo`, `pdftoppm`), `qpdf`, `pandoc` и `tesseract-ocr` (`rus+eng`).
+
+```bash
+pdftotext -layout file.pdf -              # PDF -> текст
+pandoc notes.md -o notes.docx             # Markdown -> DOCX
+pdftoppm -png -r 300 scan.pdf /tmp/page   # скан -> картинки для OCR
+tesseract /tmp/page-1.png stdout -l rus+eng
+```
+
+`pandoc` создаёт DOCX, но не PDF (нет LaTeX).
+
 ## Изоляция и ограничения
 
 Что не монтируется в контейнер:
